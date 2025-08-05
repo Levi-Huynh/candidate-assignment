@@ -11,4 +11,4 @@ ntc.names.forEach(([hex, name]) => {
 const outputPath = path.resolve(__dirname, "../src/color-name-map.json");
 fs.writeFileSync(outputPath, JSON.stringify(colorNameMap, null, 2), "utf-8");
 
-console.log(`✅ color-name-map.json generated at ${outputPath}`);
+console.log(`Success: color-name-map.json generated at ${outputPath}`);

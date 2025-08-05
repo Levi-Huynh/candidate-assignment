@@ -8,7 +8,7 @@
    yarn install
    ```
 
-2. Run the `generate-colors` script to preload the [NTCJS color library](https://www.npmjs.com/package/ntcjs) & generate the ntc hex-color map:
+2. Run the `generate-colors` script to preload the [NTCJS color library](https://www.npmjs.com/package/ntcjs) & generate the color map in `color-name-map.json`:
 
    ```bash
    npm run generate-colors
@@ -35,8 +35,8 @@
 1. Used `useEffect` hook to watch when saturation or lightness updates via a user input change
 2. For an input change, iterate through each hue value (0-360) to create a hsl combination for the saturation/light pair
 3. Convert each hsl combination to a hex using the `hslToHex` util
-4. Map the hex to the closest color name using the preloaded static [NTCJS color map](https://www.npmjs.com/package/ntcjs) in `color-name-map.json` -OR- the `apiCache` (For this assignment I used a Map() to handle our apiCache and hydrate it on every new component instantiation with `localStorage` data which is persisted across user sessions). This allows us to avoid the API call if the hex color name is available in our static list or our apiCache. _(In a fullstack application this cache layer can exist serverside for scalability (e.g `Redis`). As well as built in client-cache mechanisms from query frameworks like `react-query` or `apollo client` which are more secure, scalable and robust cache storage)_
-5. If the hex color name is not in the `NTC colors map` or the `apiCache`, then fetch the API using the hex string (and update cache)
+4. Map the hex to the closest color name using the preloaded static map in `color-name-map.json` -OR- the `apiCache` (For this assignment I used a Map() to handle our apiCache and hydrate it on every new component instantiation with `localStorage` data which is persisted across user sessions). This allows us to avoid the API call if the hex color name is available in our static list or our apiCache. _(In a fullstack application this cache layer can exist serverside for scalability (e.g `Redis`). As well as built in client-cache mechanisms from query frameworks like `react-query` or `apollo client` which are more secure, scalable and have robust cache storage)_
+5. If the hex color name is not in the `color-name-map.json` or the `apiCache`, then fetch the API using the hex string (and update the cache)
 
 [x] `Optimized rendering`:
 
