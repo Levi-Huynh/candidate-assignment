@@ -1,1 +1,1 @@
-export { default as ColorGrid } from "../colors/components/ColorGrid";
+export { default as ColorSwatches } from "../colors/components/ColorSwatches";

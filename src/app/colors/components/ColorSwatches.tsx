@@ -6,11 +6,12 @@ import { useCallback, useEffect, useState } from "react";
 import ntcColorsData from "@/color-name-map.json";
 import { useToast } from "@/app/hooks/useToast";
 
-const apiCache = new Map<string, string>();
-type ColorSwatch = Map<string, string>;
-const ntcColorsMap: Record<string, string> = ntcColorsData;
+const apiCache = new Map<string, string>(); // => {hex: name}
+const ntcColorsMap: Record<string, string> = ntcColorsData; // => {hex: name}
+type ColorSwatch = Map<string, string>; // => {name: `${rgbVal}-${hex}`}
 
-// Hydrate the apiCache (which is reset on component mount) from localStorage data which persists through user sessions
+// Hydrate the apiCache (which is reset on component mount)
+// From localStorage data which is persisted through user sessions
 if (typeof window !== "undefined" && apiCache.size === 0) {
   const stored = localStorage.getItem("colorNameCache");
   if (stored) {
@@ -27,7 +28,7 @@ if (typeof window !== "undefined" && apiCache.size === 0) {
   }
 }
 
-export default function ColorGrid() {
+export default function ColorSwatches() {
   const [saturation, setSaturation] = useState<number>(0);
   const [lightness, setLight] = useState<number>(0);
   const [colorSwatches, setColorSwatches] = useState<ColorSwatch>(new Map());
@@ -46,8 +47,8 @@ export default function ColorGrid() {
   // 1. When saturation or lightness updates via an input change
   // 2. Iterate through each hue value (0-360) to create a hsl combination for the saturation/light pair
   // 3. Convert each hsl to a hex using the `hslToHex` util
-  // 4. Map the hex to the closest color name using the preloaded ntc color map from  color-name-map.json -OR- the apiCache (persisted from local storage through user sessions)
-  // 5. If the hex color name is not in the ntc colors map or the apiCache, then fetch the API using the hex string (and update apiCache & localStorage)
+  // 4. Map the hex to the closest color name using the preloaded ntc color map from color-name-map.json -OR- the apiCache
+  // 5. If the hex color name is not in the ntc colors map or the apiCache, fetch the API using the hex string & update cache
   useEffect(() => {
     let cancelled = false;
 
@@ -100,6 +101,8 @@ export default function ColorGrid() {
           // Update the color swatches with the new color swatch
           setColorSwatches((prev) => {
             const updated = new Map(prev);
+            // Since our static NTC color list doesn't include rgb values,
+            // If the color name wasnt fetched from the API, use a `hexToRgb` util to calculate the rgp value
             updated.set(name, `${rgbVal || hexToRgb(hex)}-${hex}`);
             return updated;
           });
@@ -176,7 +179,7 @@ export default function ColorGrid() {
         )}
       </h2>
 
-      <section className="flex flex-col gap-10 flex-wrap sm:items-center sm:flex-row sm:gap-12">
+      <section className="flex flex-col gap-10 flex-wrap sm:items-center sm:flex-row">
         {Toast}
         {Array.from(colorSwatches?.entries()).map(([colorName, v]) => {
           const [rgb, hex] = v.split("-");
