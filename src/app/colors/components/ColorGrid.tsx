@@ -4,6 +4,7 @@ import { hexToRgb, hslToHex } from "@/app/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import ntcColorsData from "@/color-name-map.json";
+import { useToast } from "@/app/hooks/useToast";
 
 const apiCache = new Map<string, string>();
 type ColorSwatch = Map<string, string>;
@@ -32,6 +33,7 @@ export default function ColorGrid() {
   const [colorSwatches, setColorSwatches] = useState<ColorSwatch>(new Map());
 
   const [loading, setLoading] = useState<boolean>(false);
+  const { showToast, Toast } = useToast();
 
   const fetchColor = useCallback(async (hex: string) => {
     const res = await fetch(
@@ -86,6 +88,7 @@ export default function ColorGrid() {
             localStorage.setItem("colorNameCache", JSON.stringify(parsed));
           } catch (e) {
             console.error(`Error: ${e}, failed to fetch name for ${hex}.`);
+            showToast(`Error: ${e}, failed to fetch name for ${hex}.`);
             continue;
           }
         }
@@ -114,13 +117,18 @@ export default function ColorGrid() {
       // Prevent async logic from updating state on an unmounted component
       cancelled = true;
     };
-  }, [saturation, lightness, fetchColor]);
+  }, [saturation, lightness, fetchColor, showToast]);
 
   return (
-    <div className="mx-auto mt-16 px-4">
-      <h2 className="text-6xl mb-10 mt-2">Color Swatches Generator</h2>
+    <div className="mx-auto">
+      <section className="flex flex-col items-center">
+        <h2 className="text-6xl">Color Swatches Generator</h2>
+        <span className="mb-10">
+          Adjust the saturation & lightness using the range or number input.
+        </span>
+      </section>
 
-      <section className="flex flex-row mb-4 gap-40">
+      <section className="flex flex-col mt-10 mb-3 justify-evenly sm:items-center sm:flex-row">
         <section className="flex flex-col mb-4 gap-4">
           <label>Saturation: {saturation} </label>
           <input
@@ -160,7 +168,7 @@ export default function ColorGrid() {
         </section>
       </section>
 
-      <h2 className="my-15 text-3xl">
+      <h2 className="my-15 text-3xl items-center">
         {loading ? (
           <div>Looking Up Colors...</div>
         ) : (
@@ -168,7 +176,8 @@ export default function ColorGrid() {
         )}
       </h2>
 
-      <section className="flex flex-row flex-wrap gap-12 items-center">
+      <section className="flex flex-col gap-10 flex-wrap sm:items-center sm:flex-row sm:gap-12">
+        {Toast}
         {Array.from(colorSwatches?.entries()).map(([colorName, v]) => {
           const [rgb, hex] = v.split("-");
           return (
