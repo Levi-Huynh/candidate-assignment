@@ -53,4 +53,4 @@
 - I used a `loading` state to signal to the user when server look ups are occuring using a dynamic header. A header rendering `Looking Up Colors...` to inform user when server calls are still being made, and a `Swatches Generated!` header to inform server calls were complete.
 - I made a reuseable `useToast` hook to notify of API fetch or cache errors. Custom toasts allows JS execution to not be blocked & continue to run while still giving the user feedback. It also doesn't interrupt the UI interaction if other API calls are successful and allows custom styling as well as non-blocking UX (e.g. successful API calls for swatches could still update the UI swatches grid).
 
-[x] `Mobile, Ipad, Desktop` view is supported
+[x] `Mobile, Ipad, Desktop` view is supported. I used a column layout for the swatches and input sections on mobile devices.
