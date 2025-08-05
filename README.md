@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## To run the project locally
 
-## Getting Started
+1. Install dependencies:
 
-First, run the development server:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2. Run the `generate-colors` script to preload the [NTCJS color library](https://www.npmjs.com/package/ntcjs) & generate the ntc hex-color map:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+   ```bash
+   npm run generate-colors
+   #or
+   yarn generate-colors
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. run the development server:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-## Learn More
+4. Open [http://localhost:3000](http://localhost:3000) with your browser to see assignment
 
-To learn more about Next.js, take a look at the following resources:
+## Design Choices
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- I choose the NextJs framework to handle the boilerplates for common setup such as eslint, pre-configured project layouts (app, page, public and style configs), built in typescript support with config setup. As well as immediate server run and hot module replacement (HMR).
+- Outlined approach to `reduce number of API calls and improve performance`:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+  1.  When saturation or lightness updates via an input change.
+  2.  Iterate through each hue value (0-360) to create a hsl combination for the saturation/light pair.
+  3.  Convert each hsl combination to a hex using the `hslToHex` util.
+  4.  Map the hex to the closest color name using the preloaded [NTCJS color library](https://www.npmjs.com/package/ntcjs) in `color-name-map.json` -OR- the `apiCache` (persisted from `localStorage` across user sessions). This allows us to avoid the API call if the hex color name is available in our static list or apiCache. _(In a fullstack application this cache layer can exist serverside for scalability (e.g `Redis`). As well as built in client-cache mechanisms from query frameworks like `react-query` or `apollo client`)_.
+  5.  If the hex color name is not in the NTC colors map or the apiCache, then fetch the API using the hex string (and update apiCache & localStorage).
 
-## Deploy on Vercel
+- `Optimized rendering`:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+  - Only unique colors are rendered using a `colorNameSet` which enforces that the `colorSwatches` component state is only updated if the color name has not already been added to the set.
+  - Support `incremental rendering` by updating the `colorSwatches` component state each time a new color is added (instead of waiting for all colors to finish loading).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `UX for S and L selection`:
+
+  - I used a `range input` for quick and non granular controls that are fast and touch friendly on mobile. On mobile, it maybe easier to `drag` than type.
+  - I also used a `number input` for easier granular input control and step-by-step adjustments using the `arrow key` when the user needs to find exact values.
+
+- `Feedback and Loading`
+
+  - I used a `loading` state to signal to the user when server look ups are occuring using a dynamic header. A header rendering `Looking Up Colors...` to inform user when server calls are still being made, and a `Swatches Generated!` header to inform server calls were complete.
+  - I made a reuseable `useToast` hook to notify of API fetch or cache storage errors. This allows the JS execution to not be blocked & continue to run while still giving the user feedback. It also doesn't interrupt the UI interaction if other API calls are successful and allows custom styling as well as non-blocking UX (e.g. successful API calls for swatches could still update the UI swatches grid).
+
+- `Mobile, Ipad, Desktop` view is supported
